@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt & Decrypt Message</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a001a;
+            color: white;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .box {
+            width: 300px;
+            padding: 15px;
+            background: black;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(138, 43, 226, 0.8);
+            text-align: center;
+        }
+        input, textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #222;
+            border: 1px solid #8a2be2;
+            color: white;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #8a2be2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #6a1bb5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <h3>Enter Message</h3>
+            <input type="password" id="message" onkeydown="replaceSpace(event)">
+            <button onclick="encryptMessage()">Encrypt</button>
+        </div>
+        <div class="box">
+            <h3>Encrypted Message</h3>
+            <textarea id="encrypted" readonly></textarea>
+        </div>
+        <div class="box">
+            <h3>Decrypt Message</h3>
+            <textarea id="decryptInput"></textarea>
+            <button onclick="decryptMessage()">Decrypt</button>
+            <h3>Decrypted Message</h3>
+            <textarea id="decrypted" readonly></textarea>
+        </div>
+    </div>
+    
+    <script>
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const symbolMap = { "!": "A", "@": "B", "#": "C", "$": "D", "%": "E", "^": "F", "&": "G", "*": "H", "(": "I", ")": "J", "-": "K", "_": "L", "=": "M", "+": "N", "[": "O", "]": "P", "{": "Q", "}": "R", "|": "S", ":": "T", ";": "U", "'": "V", "\"": "W", "<": "X", ">": "Y", "?": "Z" };
+        const reverseSymbolMap = Object.fromEntries(Object.entries(symbolMap).map(([k, v]) => [v, k]));
+
+        function replaceSpace(event) {
+            if (event.key === ' ') {
+                event.preventDefault();
+                let input = document.getElementById("message");
+                input.value += "~";
+            }
+        }
+
+        function letterToNumberCipher(text) {
+            return text.toUpperCase().split('').map(char => {
+                if (char === ' ') return '~';
+                if (symbolMap[char]) return symbolMap[char];
+                let index = alphabet.indexOf(char);
+                return index !== -1 ? String(26 - index).padStart(2, '0') : char;
+            }).join('');
+        }
+
+        function numberToLetterCipher(text) {
+            return text.match(/\d{2}|\D/g).map(num => {
+                if (num === '~') return ' ';
+                if (reverseSymbolMap[num]) return reverseSymbolMap[num];
+                let index = parseInt(num);
+                return !isNaN(index) && index >= 1 && index <= 26 ? alphabet[26 - index] : num;
+            }).join('');
+        }
+
+        function encryptMessage() {
+            let message = document.getElementById("message").value;
+            let encrypted = letterToNumberCipher(message);
+            document.getElementById("encrypted").value = encrypted;
+        }
+
+        function decryptMessage() {
+            let encryptedMessage = document.getElementById("decryptInput").value;
+            let decrypted = numberToLetterCipher(encryptedMessage);
+            document.getElementById("decrypted").value = decrypted;
+        }
+    </script>
+</body>
+</html>
